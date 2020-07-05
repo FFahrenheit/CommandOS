@@ -33,7 +33,7 @@ public class ConsoleView extends javax.swing.JFrame {
         (
             new CommandFilter()
         );
-        this.getContentPane().setBackground( Color.BLACK );
+        this.getContentPane().setBackground(Color.BLACK);
 
     }
 
