@@ -5,17 +5,36 @@
  */
 package commandos;
 
+import java.awt.Color;
+import java.awt.event.KeyEvent;
+import javafx.scene.input.KeyCode;
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
+import javax.swing.text.AbstractDocument;
+
 /**
- *
- * @author ivan_
+ * Clase encargada de la vista e interaccion
+ * con el usuario
+ * @author Johann
  */
 public class ConsoleView extends javax.swing.JFrame {
+    
+    private ConsoleController console;
 
     /**
      * Creates new form ConsoleView
      */
     public ConsoleView() {
         initComponents();
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        console = new ConsoleController((JTextArea)consoleText);
+        this.setTitle("CommandOS version "+console.VERSION);
+        ((AbstractDocument)consoleText.getDocument()).setDocumentFilter
+        (
+            new CommandFilter()
+        );
+        this.getContentPane().setBackground( Color.BLACK );
+
     }
 
     /**
@@ -27,57 +46,61 @@ public class ConsoleView extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        consoleScroll = new javax.swing.JScrollPane();
+        consoleText = new javax.swing.JTextArea();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(0, 0, 0));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        consoleText.setBackground(new java.awt.Color(0, 0, 0));
+        consoleText.setColumns(20);
+        consoleText.setFont(new java.awt.Font("Consolas", 1, 14)); // NOI18N
+        consoleText.setForeground(new java.awt.Color(0, 255, 0));
+        consoleText.setLineWrap(true);
+        consoleText.setRows(5);
+        consoleText.setBorder(javax.swing.BorderFactory.createMatteBorder(10, 10, 10, 10, new java.awt.Color(0, 0, 0)));
+        consoleText.setCaretColor(new java.awt.Color(0, 255, 0));
+        consoleText.setDragEnabled(true);
+        consoleText.addCaretListener(new javax.swing.event.CaretListener() {
+            public void caretUpdate(javax.swing.event.CaretEvent evt) {
+                consoleTextCaretUpdate(evt);
+            }
+        });
+        consoleText.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                consoleTextKeyPressed(evt);
+            }
+        });
+        consoleScroll.setViewportView(consoleText);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(consoleScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(consoleScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ConsoleView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ConsoleView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ConsoleView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ConsoleView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private void consoleTextKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_consoleTextKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            console.handleCall();
         }
-        //</editor-fold>
+    }//GEN-LAST:event_consoleTextKeyPressed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ConsoleView().setVisible(true);
-            }
-        });
-    }
+    private void consoleTextCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_consoleTextCaretUpdate
+
+    }//GEN-LAST:event_consoleTextCaretUpdate
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane consoleScroll;
+    private javax.swing.JTextArea consoleText;
     // End of variables declaration//GEN-END:variables
 }
