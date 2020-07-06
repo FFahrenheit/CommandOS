@@ -6,8 +6,9 @@
 package commandos;
 
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import javafx.scene.input.KeyCode;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
@@ -34,7 +35,8 @@ public class ConsoleView extends javax.swing.JFrame {
             new CommandFilter()
         );
         this.getContentPane().setBackground(Color.BLACK);
-
+        Image icon = Toolkit.getDefaultToolkit().getImage("icon.png");    
+        this.setIconImage(icon);    
     }
 
     /**
@@ -88,6 +90,12 @@ public class ConsoleView extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /***
+     * Funcion para menejar el tecleo de comandos
+     * Se llama cada que se pulsa una tecla pero solo se toma
+     * como comando despues del enter
+     * @param evt Evento de presionado de tecla
+     */
     private void consoleTextKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_consoleTextKeyPressed
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
         {

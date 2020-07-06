@@ -5,9 +5,6 @@
  */
 package commandos;
 
-import java.awt.Color;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
 
@@ -31,6 +28,9 @@ public class ConsoleController
         setAtEnd();
     }
     
+    /***
+     * Lee el comando y basado en esto lo maneja
+     */
     public void handleCall()
     {
         String command = getCall().trim();
@@ -52,22 +52,32 @@ public class ConsoleController
         }
     }
     
+    /***
+     * Maneja el comando de salida
+     * Imprime el mensaje de saida y despues de 2 segundos sale del programa
+     * DISCLAIMER: El comando sleep tiene problemas despues de imprimir el comando, 
+     * esto por como funcionan los JFrame, por lo que se optó por una alternativa
+     */
     private void exit()
     {
         ((AbstractDocument)view.getDocument()).setDocumentFilter(null);
-        view.setText(view.getText()+"\nCiao! Gracias por usar CommandOS");
-            new java.util.Timer().schedule( 
-        
-        new java.util.TimerTask() {
-            @Override
-            public void run() {
-                System.exit(0);                 //Muchos errores con Thread.Sleep
-            }
-        }, 
-        2000 
+        view.append("\nCiao! Gracias por usar CommandOS");
+        new java.util.Timer().schedule(
+            new java.util.TimerTask() 
+            {
+                @Override
+                public void run() 
+                {
+                    System.exit(0);                 //Muchos errores con Thread.Sleep
+                }
+            }, 
+            2000 
         );
     }
     
+    /***
+     * Maneja el comando para cambiar el prompt dependiendo de los argumentos
+     */
     private void changePrompt(String command)
     {
         String newPrompt = (command.contains(" "))? command.substring(command.indexOf(" ")).trim() : "";
@@ -104,11 +114,11 @@ public class ConsoleController
         ((AbstractDocument)view.getDocument()).setDocumentFilter(null);
         if(message.equals(""))
         {
-            view.setText(view.getText()+"\n"+prompt);
+            view.append("\n"+prompt);
         }
         else 
         {
-            view.setText(view.getText()+ "\n" +message+"\n\n"+prompt);
+            view.append("\n" +message+"\n\n"+prompt);
         }
         setAtEnd();
         ((AbstractDocument)view.getDocument()).setDocumentFilter(filter);

@@ -14,6 +14,8 @@ import javax.swing.text.Element;
 /**
  * Filtro de edicion del JTextArea 
  * que evita editar partes ya impresas
+ * Libreria externa
+ * Fuente: https://stackoverflow.com/questions/10030477/make-parts-of-a-jtextarea-non-editable-not-the-whole-jtextarea
  * @author Johann
  */
 class CommandFilter extends DocumentFilter 
