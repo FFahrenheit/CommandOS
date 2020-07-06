@@ -5,6 +5,8 @@
  */
 package commandos;
 
+import java.util.Hashtable;
+import java.util.Set;
 import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
 
@@ -19,9 +21,11 @@ public class ConsoleController
     public String VERSION = "0.1";
     private JTextArea view;
     private String prompt;
+    private Hashtable<String, Double> vars;
     
     public ConsoleController(JTextArea v)
     {
+        vars = new Hashtable<String,Double>();
         view  = v;
         prompt = "CommandOS> ";
         view.setText("Buongiorno! Bienvenido a CommandOS --- [Version "+VERSION+"] by Johann"+"\n"+prompt);
@@ -37,6 +41,15 @@ public class ConsoleController
         String[] commands = command.split(" ");
         switch(commands[0].trim().toLowerCase())
         {
+            case "vari":
+                createVariable(command);
+                break;
+            case "helpti":
+                showHelp(command);
+                break;
+            case "list":
+                listVars(command);
+                break;
             case "":
                 log("");
                 break;
@@ -46,10 +59,115 @@ public class ConsoleController
             case "ciao":
                 exit();
                 break;
+            case "clear":
+                clearConsole();
+                break;
             default:
                 log("No se reconoce el comando "+commands[0].trim()+".\nPruebe de nuevo o escriba helpti para obtener ayuda");
                 break;
         }
+    }
+    
+    private void listVars(String command)
+    {
+        String[] commands = command.split(" ");
+        String text="";
+        if(commands.length==1) //Listar todo
+        {
+            text = "Lista de variables: ";
+            Set<String> keys = vars.keySet();
+            for(String key : keys)
+            {
+                text += key + " ==> " + vars.get(key)+"\n";
+            }
+            if(keys.size()==0)
+            {
+                text = "No hay variables declaradas";
+            }
+        }
+        else
+        {
+            for (int i = 1; i < commands.length; i++) 
+            {
+                String name = commands[i].trim();
+                text += name;
+                text += (vars.containsKey(name))? " ==> "+vars.get(name)+ "\n": " ===>No existe variable\n"; 
+            }
+        }
+        log(text);
+    }
+    
+    /***
+     * Funcion encargada de manejar el comando para crear variables
+     * Compara los argumentos del comando basado en su sintaxis y asigna
+     * en caso de ser correcto
+     * @param command comando completo
+     */
+    private void createVariable(String command)
+    {
+        String[] commands = command.split(" ");
+        if(commands.length>1)
+        {
+            String name = commands[1].trim();
+            if(!Character.isDigit(name.charAt(0)))
+            {
+                if(vars.containsKey(name))
+                {
+                    log("La variable "+name+" ya existe");
+                    return;
+                }
+                Double value = 0.0;
+                if(commands.length==3)
+                {
+                    try 
+                    {
+                        value = Double.parseDouble(commands[2].trim());
+                    } catch (NumberFormatException e) 
+                    {
+                        log("El valor asignado no es numerico (decimal o entero)");
+                        return;
+                    }
+                }
+                else if(commands.length>3)
+                {
+                    log("Demasiados argumentos para el comando vari");
+                    return;
+                }
+                vars.put(name, value);
+                log("Variable "+name+" creada con valor "+value);
+            }
+        }
+        else
+        {
+            log("No se especifico el nombre de la variable. Escriba helpti vari para obtener ayuda");
+        }
+    }
+    
+    /***
+     * Maneja el comando helpti
+     */
+    private void showHelp(String command)
+    {
+        String text = "Para obtener mas detalles de cada comando, escriba helpti seguido "
+                + "del nombre del comando:\n"
+                + "ciao:      Sale de CommandOS\n"
+                + "clear:     Limpia la consola\n"
+                + "helpti:    Muestra ayuda con el manejo de CommandOS\n"
+                + "prompti:   Cambia el prompt de la consola\n";
+        log(text);
+    }
+    
+    /***
+     * Limpia la consola, elimina el filtro, coloca el prompt como nuevo texto
+     * y vuelve a colocar el filtro
+     */
+    private void clearConsole()
+    {
+        CommandFilter filter = (CommandFilter) ((AbstractDocument)view.getDocument()).getDocumentFilter();
+        ((AbstractDocument)view.getDocument()).setDocumentFilter(null);
+        view.setText(prompt);
+        setAtEnd();
+        ((AbstractDocument)view.getDocument()).setDocumentFilter(filter);    
     }
     
     /***
