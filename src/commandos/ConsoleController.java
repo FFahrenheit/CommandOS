@@ -18,7 +18,7 @@ import javax.swing.text.AbstractDocument;
  */
 public class ConsoleController 
 {
-    public String VERSION = "0.1";
+    public String VERSION = "0.2";
     private JTextArea view;
     private String prompt;
     private Hashtable<String, Double> vars;
@@ -42,13 +42,13 @@ public class ConsoleController
         switch(commands[0].trim().toLowerCase())
         {
             case "vari":
-                createVariable(command);
+                createVariable(commands);
                 break;
             case "helpti":
-                showHelp(command);
+                showHelp(commands);
                 break;
-            case "list":
-                listVars(command);
+            case "value":
+                listVars(commands);
                 break;
             case "":
                 log("");
@@ -62,23 +62,61 @@ public class ConsoleController
             case "clear":
                 clearConsole();
                 break;
+            case "assign":
+                changeValue(commands);
+                break;
             default:
                 log("No se reconoce el comando "+commands[0].trim()+".\nPruebe de nuevo o escriba helpti para obtener ayuda");
                 break;
         }
     }
     
-    private void listVars(String command)
+    /***
+     * Cambia el valor de la variable correspondiente
+     * @param commands arreglo de strings del comando
+     * [1] variable a cambiar valor
+     * [2] nuevo valor
+     */
+    private void changeValue(String[] commands)
     {
-        String[] commands = command.split(" ");
+        if(commands.length == 3)
+        {
+            if(vars.containsKey(commands[1]))
+            {
+                Double newValue;
+                if(isNumeric(commands[2]))
+                {
+                    newValue = getNumericValue(commands[2]);
+                }
+                else if(vars.containsKey(commands[2]))
+                {
+                    newValue = vars.get(commands[2]);
+                }
+                else
+                {
+                    log("Error, el valor destino es invalido");
+                    return;
+                }
+                vars.replace(commands[1], newValue);
+                log("La variable "+ commands[1]+" ahora tiene el valor de "+newValue);
+            }
+            else
+            {
+                log("Error, la variable a asignar el valor no existe");
+            }
+        }
+    }
+    
+    private void listVars(String[] commands)
+    {
         String text="";
         if(commands.length==1) //Listar todo
         {
-            text = "Lista de variables: ";
+            text = "Lista de variables:";
             Set<String> keys = vars.keySet();
             for(String key : keys)
             {
-                text += key + " ==> " + vars.get(key)+"\n";
+                text += "\n" + key + " ==> " + vars.get(key);
             }
             if(keys.size()==0)
             {
@@ -91,7 +129,7 @@ public class ConsoleController
             {
                 String name = commands[i].trim();
                 text += name;
-                text += (vars.containsKey(name))? " ==> "+vars.get(name)+ "\n": " ===>No existe variable\n"; 
+                text += "\n"+ ((vars.containsKey(name))? " ==> "+vars.get(name)+ "\n": " ===>No existe variable"); 
             }
         }
         log(text);
@@ -103,13 +141,12 @@ public class ConsoleController
      * en caso de ser correcto
      * @param command comando completo
      */
-    private void createVariable(String command)
+    private void createVariable(String[] commands)
     {
-        String[] commands = command.split(" ");
         if(commands.length>1)
         {
             String name = commands[1].trim();
-            if(!Character.isDigit(name.charAt(0)))
+            if(Character.isAlphabetic(name.charAt(0)))
             {
                 if(vars.containsKey(name))
                 {
@@ -119,10 +156,11 @@ public class ConsoleController
                 Double value = 0.0;
                 if(commands.length==3)
                 {
-                    try 
+                    if(isNumeric(commands[2]))
                     {
-                        value = Double.parseDouble(commands[2].trim());
-                    } catch (NumberFormatException e) 
+                        value = getNumericValue(commands[2]);
+                    }
+                    else
                     {
                         log("El valor asignado no es numerico (decimal o entero)");
                         return;
@@ -136,6 +174,10 @@ public class ConsoleController
                 vars.put(name, value);
                 log("Variable "+name+" creada con valor "+value);
             }
+            else
+            {
+                log("Nombre invalido para la variable, no puede empezar con una letra");
+            }
         }
         else
         {
@@ -146,14 +188,16 @@ public class ConsoleController
     /***
      * Maneja el comando helpti
      */
-    private void showHelp(String command)
+    private void showHelp(String[] commands)
     {
         String text = "Para obtener mas detalles de cada comando, escriba helpti seguido "
                 + "del nombre del comando:\n"
                 + "ciao:      Sale de CommandOS\n"
                 + "clear:     Limpia la consola\n"
                 + "helpti:    Muestra ayuda con el manejo de CommandOS\n"
-                + "prompti:   Cambia el prompt de la consola\n";
+                + "value:     Muestra el valor de la(s) variable(s)\n"
+                + "prompti:   Cambia el prompt de la consola\n"
+                + "vari:      Crea variables numericas";
         log(text);
     }
     
@@ -252,12 +296,34 @@ public class ConsoleController
     
     /***
      * Cambia el prompt tanto en el filtro como en la consola
-     * @param message 
+     * @param message nuevo prompt
      */
     private void changeCommandPrompt(String message)
     {
         CommandFilter filter = (CommandFilter) ((AbstractDocument)view.getDocument()).getDocumentFilter();
         filter.setCommandPrompt(message);
         prompt = message + "> ";
+    }
+    
+    private Double getNumericValue(String value)
+    {
+        return Double.parseDouble(value);
+    }
+    
+    /***
+     * Comprueba si un valor es una valor numerico
+     * @param value string a comprobar
+     * @return si es numerico
+     */
+    private boolean isNumeric(String value)
+    {
+        try 
+        {                        
+            Double val  = Double.parseDouble(value.trim());
+            return true;
+        } catch (NumberFormatException e) 
+        {
+            return false;
+        }
     }
 }
