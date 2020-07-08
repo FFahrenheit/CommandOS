@@ -11,6 +11,8 @@ import java.util.Hashtable;
 import java.util.Set;
 import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
+import java.lang.Math; 
+
 
 /**
  * Clase encargada de controlar los eventos
@@ -48,9 +50,12 @@ public class ConsoleController
                 doOperator(commands);
                 break;
             case "sum":
+            case "modus":
             case "rest":
             case "divi":
             case "multi":
+            case "log":
+            case "pow":
                 doOperation(commands);
                 break;
             case "vari":
@@ -162,6 +167,7 @@ public class ConsoleController
                     newValue = vars.get(args[1])-1.0;
                 }
                 logCheck("La variable "+args[1]+" ahora tiene un valor de "+newValue,register);
+                vars.replace(args[1], newValue);
                 return newValue;
             }
             else
@@ -232,6 +238,23 @@ public class ConsoleController
                     result = getValue(args[1]) * getValue(args[2]);
                     sign = '*';
                     break;
+                case "modus":
+                    result = getValue(args[1]) % getValue(args[2]);
+                    sign = '%';
+                    break;
+                case "pow":
+                    result = Math.pow(getValue(args[1]), getValue(args[2]));
+                    sign = '^';
+                    break;
+                case "log":
+                    if(getValue(args[1])<0 || getValue(args[2])<0)
+                    {
+                        logCheck("No existe logaritmo de un numero o base negativa",register);
+                        return null;
+                    }
+                    result = Math.log(getValue(args[2])) / Math.log(getValue(args[1]));
+                    logCheck("log "+args[1]+" ("+args[2]+") = "+result,register);
+                    return result;
                 default:
                     logCheck("La operacion es invalida",register);
                     return null;
@@ -342,9 +365,18 @@ public class ConsoleController
                 + "del nombre del comando:\n"
                 + "ciao:      Sale de CommandOS\n"
                 + "clear:     Limpia la consola\n"
+                + "date:      Muestra la fecha y hora actual\n"
+                + "dec:       Decrementa en uno una variable\n"
+                + "divi:      Divide dos valores (variable o numeros)\n"
                 + "helpti:    Muestra ayuda con el manejo de CommandOS\n"
-                + "value:     Muestra el valor de la(s) variable(s)\n"
+                + "inc:       Incrementa en uno una variable\n"
+                + "modus:     Calcula el residuo de la division de dos valores (variable o numeros)\n"
+                + "multi:     Multiplica dos valores(variable o numeros)\n"
+                + "pow:       Eleva un valor a una potencia (variables o numeris)\n"
                 + "prompti:   Cambia el prompt de la consola\n"
+                + "rest:      Resta dos valores (variable o numeros)\n"
+                + "sum:       Suma dos valores (variable o numeros)\n"
+                + "value:     Muestra el valor de la(s) variable(s)\n"
                 + "vari:      Crea variables numericas";
         log(text);
     }
@@ -372,7 +404,8 @@ public class ConsoleController
     {
         ((AbstractDocument)view.getDocument()).setDocumentFilter(null);
         view.append("\nCiao! Gracias por usar CommandOS");
-        new java.util.Timer().schedule(
+        new java.util.Timer().schedule
+        (
             new java.util.TimerTask() 
             {
                 @Override

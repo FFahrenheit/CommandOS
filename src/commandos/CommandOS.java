@@ -20,6 +20,5 @@ public class CommandOS {
     {
         ConsoleView console = new ConsoleView();
         console.setVisible(true);
-    }
-    
+    }    
 }
