@@ -5,6 +5,8 @@
  */
 package commandos;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Set;
 import javax.swing.JTextArea;
@@ -18,7 +20,7 @@ import javax.swing.text.AbstractDocument;
  */
 public class ConsoleController 
 {
-    public String VERSION = "0.2";
+    public String VERSION = "0.3";
     private JTextArea view;
     private String prompt;
     private Hashtable<String, Double> vars;
@@ -41,6 +43,10 @@ public class ConsoleController
         String[] commands = command.split(" ");
         switch(commands[0].trim().toLowerCase())
         {
+            case "inc":
+            case "dec":
+                doOperator(commands);
+                break;
             case "sum":
             case "rest":
             case "divi":
@@ -68,6 +74,9 @@ public class ConsoleController
             case "clear":
                 clearConsole();
                 break;
+            case "date":
+                currentDate();
+                break;
             case "assign":
                 changeValue(commands);
                 break;
@@ -77,6 +86,13 @@ public class ConsoleController
         }
     }
     
+    
+    private void currentDate()
+    {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+        Date date = new Date();  
+        log(formatter.format(date));  
+    }
     
     /***
      * Cambia el valor de la variable correspondiente
@@ -114,6 +130,57 @@ public class ConsoleController
         }
     }
     
+    private void doOperator(String[] args)
+    {
+        executeOperationOneArgument(args, true);
+    }
+    
+    /***
+     * Realiza las operaciones de un argumento y retorna el valor resultado
+     * @param args argumento y operacion
+     * @param register si va a loggear o no
+     * @return valor nuevo
+     */
+    private Double executeOperationOneArgument(String[] args, boolean register)
+    {
+        if(args.length!=2)
+        {
+            logCheck("La operacion requiere de solo un argumento",register);
+            return null;
+        }
+        if(args[0].toLowerCase().equals("inc") || args[0].toLowerCase().equals("dec"))
+        {
+            if(vars.containsKey(args[1]))
+            {
+                Double newValue;
+                if(args[0].toLowerCase().equals("inc"))
+                {
+                    newValue = vars.get(args[1])+1.0;
+                }
+                else
+                {
+                    newValue = vars.get(args[1])-1.0;
+                }
+                logCheck("La variable "+args[1]+" ahora tiene un valor de "+newValue,register);
+                return newValue;
+            }
+            else
+            {
+                logCheck("El comando "+args[0]+" solo se puede usar para variables declaradas",register);
+                return null;
+            }
+        }
+        switch(args[0].toLowerCase()) //ToDo
+        {
+            case "sqrt":
+            case "fact":
+            case "log":
+            case "ln":
+                break;
+        }
+        return null;
+    }
+    
     /***
      * Realiza las operaciones de dos argumentos
      * Llama a la funcion executeOperation diciendo que si va a 
@@ -122,11 +189,22 @@ public class ConsoleController
      */
     private void doOperation(String[] args)
     {
-        executeOperation(args,true);
+        executeOperationTwoArguments(args,true);
     }
     
-    private Double executeOperation(String[] args, boolean register)
+    /***
+     * Realiza las operaciones de dos argumentos
+     * @param args argumentos y operacion
+     * @param register indica si se loggeará el resultado
+     * @return resultado
+     */
+    private Double executeOperationTwoArguments(String[] args, boolean register)
     {
+        if(args.length != 3)
+        {
+            logCheck("La operacion requiere solo de dos valores",register);
+            return null;
+        }
         if(isValidArgument(args[1]) && isValidArgument(args[2]))
         {
             char sign;
