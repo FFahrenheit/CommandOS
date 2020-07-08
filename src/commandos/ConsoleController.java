@@ -41,6 +41,12 @@ public class ConsoleController
         String[] commands = command.split(" ");
         switch(commands[0].trim().toLowerCase())
         {
+            case "sum":
+            case "rest":
+            case "divi":
+            case "multi":
+                doOperation(commands);
+                break;
             case "vari":
                 createVariable(commands);
                 break;
@@ -70,6 +76,7 @@ public class ConsoleController
                 break;
         }
     }
+    
     
     /***
      * Cambia el valor de la variable correspondiente
@@ -104,6 +111,69 @@ public class ConsoleController
             {
                 log("Error, la variable a asignar el valor no existe");
             }
+        }
+    }
+    
+    /***
+     * Realiza las operaciones de dos argumentos
+     * Llama a la funcion executeOperation diciendo que si va a 
+     * mostrar el log e ignorar el resultado, solo mostrarlo
+     * @param args argumentos y operador
+     */
+    private void doOperation(String[] args)
+    {
+        executeOperation(args,true);
+    }
+    
+    private Double executeOperation(String[] args, boolean register)
+    {
+        if(isValidArgument(args[1]) && isValidArgument(args[2]))
+        {
+            char sign;
+            Double result;
+            switch(args[0].toLowerCase())
+            {
+                case "sum":
+                    result = getValue(args[1]) + getValue(args[2]);
+                    sign = '+';
+                    break;
+                case "rest":
+                    result = getValue(args[1]) - getValue(args[2]);
+                    sign = '-';                    
+                    break;
+                case "divi":
+                    if(getValue(args[2])==0)
+                    {
+                        logCheck("El resultado es invalido",register);
+                        return null;
+                    }
+                    result = getValue(args[1]) / getValue(args[2]);
+                    sign = '/';
+                    break;
+                case "multi":
+                    result = getValue(args[1]) * getValue(args[2]);
+                    sign = '*';
+                    break;
+                default:
+                    logCheck("La operacion es invalida",register);
+                    return null;
+            }
+            logCheck(args[1]+" "+sign+" "+args[2]+" = "+result.toString(),register);
+            return result;
+        }
+        else
+        {
+            String log = "Uno o mas argumentos son invalidos:";
+            if(!isValidArgument(args[1]))
+            {
+                log += "\nEl identificador "+args[1]+" no es una variable o un valor numerico valido";
+            }
+            if(!isValidArgument(args[2]))
+            {
+                log += "\nEl identificador "+args[1]+" no es una variable o un valor numerico valido";
+            }
+            logCheck(log,register);
+            return null;
         }
     }
     
@@ -324,6 +394,49 @@ public class ConsoleController
         } catch (NumberFormatException e) 
         {
             return false;
+        }
+    }
+    
+    /***
+     * Verifica que el argumento es o una variable o un valor
+     * mumerico
+     * @param arg argumento
+     * @return si es valido o no
+     */
+    private boolean isValidArgument(String arg)
+    {
+        return getValue(arg) != null;
+    }
+    
+    /***
+     * Retorna el valor de un argumento, sea numerico o variable
+     * @param identifier identificador
+     * @return valor de dicho identificador, null si no es valido
+     */
+    private Double getValue(String identifier)
+    {
+        identifier = identifier.trim();
+        if(vars.containsKey(identifier))
+        {
+            return vars.get(identifier);
+        }
+        else if(isNumeric(identifier))
+        {
+            return getNumericValue(identifier);
+        }
+        return null;
+    }
+    
+    /***
+     * Loggea con "seguro", es decir, si no es necesario logear no lo hará
+     * @param message log
+     * @param check se logeará o no
+     */
+    private void logCheck(String message, boolean check)
+    {
+        if(check)
+        {
+            log(message);
         }
     }
 }
